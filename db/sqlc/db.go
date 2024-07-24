@@ -27,14 +27,32 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createAccountStmt, err = db.PrepareContext(ctx, createAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateAccount: %w", err)
 	}
+	if q.createEntryStmt, err = db.PrepareContext(ctx, createEntry); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateEntry: %w", err)
+	}
+	if q.createTransferStmt, err = db.PrepareContext(ctx, createTransfer); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateTransfer: %w", err)
+	}
 	if q.deleteAccountStmt, err = db.PrepareContext(ctx, deleteAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteAccount: %w", err)
 	}
 	if q.getAccountStmt, err = db.PrepareContext(ctx, getAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAccount: %w", err)
 	}
+	if q.getEntryStmt, err = db.PrepareContext(ctx, getEntry); err != nil {
+		return nil, fmt.Errorf("error preparing query GetEntry: %w", err)
+	}
+	if q.getTransferStmt, err = db.PrepareContext(ctx, getTransfer); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTransfer: %w", err)
+	}
 	if q.listAccountStmt, err = db.PrepareContext(ctx, listAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query ListAccount: %w", err)
+	}
+	if q.listEntryStmt, err = db.PrepareContext(ctx, listEntry); err != nil {
+		return nil, fmt.Errorf("error preparing query ListEntry: %w", err)
+	}
+	if q.listTransferStmt, err = db.PrepareContext(ctx, listTransfer); err != nil {
+		return nil, fmt.Errorf("error preparing query ListTransfer: %w", err)
 	}
 	if q.updateAccountStmt, err = db.PrepareContext(ctx, updateAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateAccount: %w", err)
@@ -49,6 +67,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createAccountStmt: %w", cerr)
 		}
 	}
+	if q.createEntryStmt != nil {
+		if cerr := q.createEntryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createEntryStmt: %w", cerr)
+		}
+	}
+	if q.createTransferStmt != nil {
+		if cerr := q.createTransferStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createTransferStmt: %w", cerr)
+		}
+	}
 	if q.deleteAccountStmt != nil {
 		if cerr := q.deleteAccountStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteAccountStmt: %w", cerr)
@@ -59,9 +87,29 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getAccountStmt: %w", cerr)
 		}
 	}
+	if q.getEntryStmt != nil {
+		if cerr := q.getEntryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getEntryStmt: %w", cerr)
+		}
+	}
+	if q.getTransferStmt != nil {
+		if cerr := q.getTransferStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTransferStmt: %w", cerr)
+		}
+	}
 	if q.listAccountStmt != nil {
 		if cerr := q.listAccountStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listAccountStmt: %w", cerr)
+		}
+	}
+	if q.listEntryStmt != nil {
+		if cerr := q.listEntryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listEntryStmt: %w", cerr)
+		}
+	}
+	if q.listTransferStmt != nil {
+		if cerr := q.listTransferStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listTransferStmt: %w", cerr)
 		}
 	}
 	if q.updateAccountStmt != nil {
@@ -106,23 +154,35 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                DBTX
-	tx                *sql.Tx
-	createAccountStmt *sql.Stmt
-	deleteAccountStmt *sql.Stmt
-	getAccountStmt    *sql.Stmt
-	listAccountStmt   *sql.Stmt
-	updateAccountStmt *sql.Stmt
+	db                 DBTX
+	tx                 *sql.Tx
+	createAccountStmt  *sql.Stmt
+	createEntryStmt    *sql.Stmt
+	createTransferStmt *sql.Stmt
+	deleteAccountStmt  *sql.Stmt
+	getAccountStmt     *sql.Stmt
+	getEntryStmt       *sql.Stmt
+	getTransferStmt    *sql.Stmt
+	listAccountStmt    *sql.Stmt
+	listEntryStmt      *sql.Stmt
+	listTransferStmt   *sql.Stmt
+	updateAccountStmt  *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                tx,
-		tx:                tx,
-		createAccountStmt: q.createAccountStmt,
-		deleteAccountStmt: q.deleteAccountStmt,
-		getAccountStmt:    q.getAccountStmt,
-		listAccountStmt:   q.listAccountStmt,
-		updateAccountStmt: q.updateAccountStmt,
+		db:                 tx,
+		tx:                 tx,
+		createAccountStmt:  q.createAccountStmt,
+		createEntryStmt:    q.createEntryStmt,
+		createTransferStmt: q.createTransferStmt,
+		deleteAccountStmt:  q.deleteAccountStmt,
+		getAccountStmt:     q.getAccountStmt,
+		getEntryStmt:       q.getEntryStmt,
+		getTransferStmt:    q.getTransferStmt,
+		listAccountStmt:    q.listAccountStmt,
+		listEntryStmt:      q.listEntryStmt,
+		listTransferStmt:   q.listTransferStmt,
+		updateAccountStmt:  q.updateAccountStmt,
 	}
 }
